@@ -93,7 +93,7 @@ class App(Tk):
         elif i == 6:
             self.show_promedio_window()
         elif i == 7:
-            self.show_borra_estudiante_window()
+            self.show_borrar_estudiante_window()
 
     # sub win
     def show_sub_window(self, title):
@@ -147,7 +147,6 @@ class App(Tk):
         self.table_notas = ttk.Treeview(self.sub_frame, columns="Notas", show='headings')
         self.table_notas.column("Notas", minwidth=0, width=100, stretch=NO)
         self.table_notas.heading("Notas", text="Notas")
-        # table_notas.bind('<ButtonRelease-1>', self.on_ttk_click)
         self.table_notas.grid(row=2, column=2, columnspan=4)
 
         Button(self.sub_frame, text="BORRAR",
@@ -178,7 +177,6 @@ class App(Tk):
 
     def show_sort_by_notas_window(self):
         self.create_subframe()
-
         self.show_sub_window("Listado de estudiantes por nombre:")
 
         self.crear_estudiante_table(["Nombre", "Apellido", "Promedio"])
@@ -189,12 +187,13 @@ class App(Tk):
             notas.append(i.get_promedio())
 
         index_list = sorted(range(len(notas)), key=lambda k: notas[k])
+        index_list.reverse()
 
         for i in range(len(lista_estudiantes)):
             notas[i] = lista_estudiantes[index_list[i]]
 
         self.table.delete(*self.table.get_children())
-        for i in lista_estudiantes:
+        for i in notas:
             self.table.insert('', 'end', text=i, values=(i.nombre, i.apellido, int(i.get_promedio())))
 
     def show_promedio_window(self):
@@ -217,7 +216,7 @@ class App(Tk):
         for i in lista_estudiantes:
             self.table.insert('', 'end', text=i, values=(i.nombre, i.apellido, int(i.get_promedio())))
 
-    def show_borra_estudiante_window(self):
+    def show_borrar_estudiante_window(self):
         self.create_subframe()
 
         self.show_sub_window("Borrar estudiantes:")
@@ -246,9 +245,9 @@ class App(Tk):
             i = int(self.table.item(self.table.focus(), "text"))
         except ValueError:
             return
-        self.add_notas_table(i)
+        self.fill_notas_table(i)
 
-    def add_notas_table(self, i):
+    def fill_notas_table(self, i):
         self.table_notas.delete(*self.table_notas.get_children())
         notas = lista_estudiantes[i].notas
         for j in range(len(notas)):
@@ -330,7 +329,7 @@ def add_nota(nota):
 
     app.entry_1.delete(0, 'end')
     lista_estudiantes[i].add_nota(nota)
-    app.add_notas_table(i)
+    app.fill_notas_table(i)
 
 
 def borrar_nota():
@@ -342,23 +341,23 @@ def borrar_nota():
         return
 
     lista_estudiantes[i].notas.pop(j)
-    app.add_notas_table(i)
+    app.fill_notas_table(i)
 
 
 # TODO REMOVE BEFORE RELEASE
 # Lista precargada para probar
-lista_estudiantes.append(Estudiante("Miguel", "Juls"))
+lista_estudiantes.append(Estudiante("miguel", "juls"))
 lista_estudiantes[0].add_nota(70)
 lista_estudiantes[0].add_nota(50)
 
-lista_estudiantes.append(Estudiante("Juan", "Kiuil"))
+lista_estudiantes.append(Estudiante("juan", "kiuil"))
 lista_estudiantes[1].add_nota(20)
-lista_estudiantes[1].add_nota(10)
+lista_estudiantes[1].add_nota(90)
 lista_estudiantes[1].add_nota(50)
 
-lista_estudiantes.append(Estudiante("Angel", "Kiuil"))
+lista_estudiantes.append(Estudiante("angel", "kiuil"))
 lista_estudiantes[2].add_nota(80)
-lista_estudiantes[2].add_nota(10)
+lista_estudiantes[2].add_nota(90)
 lista_estudiantes[2].add_nota(40)
 
 # Main
