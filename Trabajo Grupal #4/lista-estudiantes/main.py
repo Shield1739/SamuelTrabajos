@@ -70,12 +70,11 @@ class App(Tk):
         self.create_mainframe()
         self.radioVar.set(0)
 
-        Label(self.main_frame, text="Que desea elegir?").grid(row=0, column=0, sticky=W)
+        Label(self.main_frame, text="Eliga una opcion:").grid(row=0, column=0, sticky=W)
 
         for i in range(len(self.menu_strings)):
-            radio_button = Radiobutton(self.main_frame, text=self.menu_strings[i], value=i + 1,
-                                       variable=self.radioVar, command=self.main_window_selec)
-            radio_button.grid(row=i + 1, column=0, sticky=W)
+            Radiobutton(self.main_frame, text=self.menu_strings[i], value=i + 1, variable=self.radioVar,
+                        command=self.main_window_selec).grid(row=i + 1, column=0, sticky=W)
 
     def main_window_selec(self):
         i = self.radioVar.get()
@@ -97,8 +96,7 @@ class App(Tk):
 
     # sub win
     def show_sub_window(self, title):
-        back_button = Button(self.sub_frame, text="ATRAS", command=self.show_main_window)
-        back_button.grid(row=0, column=0)
+        Button(self.sub_frame, text="ATRAS", command=self.show_main_window).grid(row=0, column=0)
 
         Label(self.sub_frame, text=title).grid(row=0, column=1)
 
@@ -177,7 +175,7 @@ class App(Tk):
 
     def show_sort_by_notas_window(self):
         self.create_subframe()
-        self.show_sub_window("Listado de estudiantes por nombre:")
+        self.show_sub_window("Listado de estudiantes por notas:")
 
         self.crear_estudiante_table(["Nombre", "Apellido", "Promedio"])
         self.table.grid(row=2, column=1, columnspan=4)
@@ -192,9 +190,7 @@ class App(Tk):
         for i in range(len(lista_estudiantes)):
             notas[i] = lista_estudiantes[index_list[i]]
 
-        self.table.delete(*self.table.get_children())
-        for i in notas:
-            self.table.insert('', 'end', text=i, values=(i.nombre, i.apellido, int(i.get_promedio())))
+        self.fill_estudiante_y_notas_table(notas)
 
     def show_promedio_window(self):
         self.create_subframe()
@@ -212,9 +208,7 @@ class App(Tk):
         self.crear_estudiante_table(["Nombre", "Apellido", "Promedio"])
         self.table.grid(row=2, column=1, columnspan=4)
 
-        self.table.delete(*self.table.get_children())
-        for i in lista_estudiantes:
-            self.table.insert('', 'end', text=i, values=(i.nombre, i.apellido, int(i.get_promedio())))
+        self.fill_estudiante_y_notas_table(lista_estudiantes)
 
     def show_borrar_estudiante_window(self):
         self.create_subframe()
@@ -238,7 +232,7 @@ class App(Tk):
     def fill_estudiante_table(self, lista):
         self.table.delete(*self.table.get_children())
         for i in range(len(lista)):
-            self.table.insert('', 'end', text=i, values=(lista[i].nombre, lista[i].apellido))
+            self.table.insert('', 'end', text=i, values=(lista[i].nombre.title(), lista[i].apellido.title()))
 
     def on_student_ttk_click(self, event):
         try:
@@ -247,9 +241,14 @@ class App(Tk):
             return
         self.fill_notas_table(i)
 
-    def fill_notas_table(self, i):
+    def fill_estudiante_y_notas_table(self, lista):
+        self.table.delete(*self.table.get_children())
+        for i in lista:
+            self.table.insert('', 'end', text=i, values=(i.nombre.title(), i.apellido.title(), int(i.get_promedio())))
+
+    def fill_notas_table(self, lista):
         self.table_notas.delete(*self.table_notas.get_children())
-        notas = lista_estudiantes[i].notas
+        notas = lista_estudiantes[lista].notas
         for j in range(len(notas)):
             self.table_notas.insert('', 'end', text=j, values=notas[j])
 
@@ -263,7 +262,7 @@ class App(Tk):
         self.fill_estudiante_table(lista_estudiantes)
 
 
-# methods
+# funciones
 def show_errorbox(msg):
     messagebox.showerror("error", msg)
 
@@ -287,7 +286,7 @@ def add_estudiante(nombre, apellido):
 
 def search_estudiante(nombre):
     if nombre == "":
-        show_warningbox("El campo no pueden estar vacio")
+        show_warningbox("El campo no puede estar vacio")
         return
 
     nombre = nombre.lower()
