@@ -343,22 +343,6 @@ def borrar_nota():
     app.fill_notas_table(i)
 
 
-# TODO REMOVE BEFORE RELEASE
-# Lista precargada para probar
-lista_estudiantes.append(Estudiante("miguel", "juls"))
-lista_estudiantes[0].add_nota(70)
-lista_estudiantes[0].add_nota(50)
-
-lista_estudiantes.append(Estudiante("juan", "kiuil"))
-lista_estudiantes[1].add_nota(20)
-lista_estudiantes[1].add_nota(90)
-lista_estudiantes[1].add_nota(50)
-
-lista_estudiantes.append(Estudiante("angel", "kiuil"))
-lista_estudiantes[2].add_nota(80)
-lista_estudiantes[2].add_nota(90)
-lista_estudiantes[2].add_nota(40)
-
 # Main
 app = App()
 app.show_main_window()
