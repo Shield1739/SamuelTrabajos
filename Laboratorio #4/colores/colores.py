@@ -1,7 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk, Image
-from os import path
+import os
+
 
 colores_codigos = [
     "blue", "green", "yellow",
@@ -48,14 +49,14 @@ class App(Tk):
                height=2, width=9).grid(row=1, column=3)
 
     def button_pressed(self, e):
-        # print(path.join(path.dirname(__file__), "colores.py"))
         if self.valid:
             show_errorbox("Debe borrar la imagen antes de abrir otra")
             return
 
         self.valid = True
 
-        img = ImageTk.PhotoImage(Image.open('colores/img/' + str(e) + '.jpg'))
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        img = ImageTk.PhotoImage(Image.open(str(dir_path) + '/img/' + str(e) + '.jpg'))
 
         self.canvas.image = img
         self.canvas.create_image(100, 100, image=img)

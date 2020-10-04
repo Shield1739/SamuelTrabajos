@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 
+
 class CategoriaPlato:
     def __init__(self, tipo, platos):
         self.tipo = tipo
