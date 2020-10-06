@@ -1,9 +1,13 @@
-import parcial_turismo as pt
-from parcial_turismo import Region, Zona
-from tkinter import *
-from tkinter.font import Font
-from PIL import ImageTk, Image
 import os
+from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
+from tkinter.font import Font
+
+from PIL import ImageTk, Image
+
+import parcial_turismo as pt
+from parcial_turismo import *
 
 
 class App(Tk):
@@ -38,12 +42,12 @@ class App(Tk):
     def show_main_window(self):
         self.frame.destroy()
         self.configure(background=c_black)
-        self.geometry("800x600")
+        self.geometry("900x600")
 
-        self.frame = LabelFrame(self, borderwidth=0, highlightthickness=0, bg=c_black)
+        self.frame = LabelFrame(self, borderwidth=0, highlightthickness=0, bg=c_white)
         self.frame.pack()
 
-        Label(self.frame, text="ELIGA SU DESTINO", bg=c_black, fg=c_white, font=self.font_t, height=5)\
+        Label(self.frame, text="ELIGA SU DESTINO", font=self.font_t, height=5)\
             .grid(row=0, column=0, columnspan=2)
 
         canvas = Canvas(self.frame, height=400, width=800)
@@ -60,15 +64,15 @@ class App(Tk):
         # TODO MAYBE UNRELEASE?
         canvas.bind("<Button-1>", self.on_canvas_click)
 
-        Label(self.frame, text="MOSTAR: ", bg=c_black, fg=c_white, font=self.font_st, height=5) \
+        Label(self.frame, text="MOSTAR: ", font=self.font_st, height=5) \
             .grid(row=3, column=0, sticky=W)
 
         self.display_var.set(0)
-        Radiobutton(self.frame, text="SOLO PROVINCIAS", bg=c_black, fg=c_white, value=2, variable=self.display_var,
+        Radiobutton(self.frame, text="SOLO PROVINCIAS", value=2, variable=self.display_var,
                     command=lambda: self.change_text_display(canvas)).grid(row=3, column=0, sticky=W, padx=75)
-        Radiobutton(self.frame, text="SOLO COMARCAS", bg=c_black, fg=c_white, value=1, variable=self.display_var,
+        Radiobutton(self.frame, text="SOLO COMARCAS", value=1, variable=self.display_var,
                     command=lambda: self.change_text_display(canvas)).grid(row=3, column=0, sticky=W, padx=200)
-        Radiobutton(self.frame, text="AMBAS", bg=c_black, fg=c_white, value=0, variable=self.display_var,
+        Radiobutton(self.frame, text="AMBAS", value=0, variable=self.display_var,
                     command=lambda: self.change_text_display(canvas)).grid(row=3, column=0, sticky=W, padx=325)
 
     # TODO ENCONTRAR MEJOR NOMBRE
@@ -147,7 +151,9 @@ class App(Tk):
                 r = "Emberá"
 
         if r != "":
+            global region_selec
             region = get_region(r)
+            region_selec = region
             self.show_sub_window(region)
 
     # sub windows
@@ -166,7 +172,7 @@ class App(Tk):
 
         # Titulos
         Label(self.frame, text="USTED SELECCIONO:", font=self.font_t).grid(row=0, column=2, sticky=W)
-        Label(self.frame, text=obj.get_nombre(), font=self.font_st).grid(row=0, column=3, sticky=W)
+        Label(self.frame, text=obj.nombre, font=self.font_st).grid(row=0, column=3, sticky=W)
 
         # Imagen
         Label(self.frame, text="Foto: ", font=self.font_st).grid(row=1, column=0, sticky=W)
@@ -175,9 +181,7 @@ class App(Tk):
         img_path = ""
 
         if obj_tipo == "r":
-            global region_selec
-            region_selec = obj
-            img_path = str(dir_path) + '/img/mapas/' + str(obj.get_nombre()) + '.png'
+            img_path = str(dir_path) + '/img/mapas/' + str(obj.nombre) + '.png'
         elif obj_tipo == "z":
             global zona_selec
             zona_selec = obj
@@ -193,23 +197,24 @@ class App(Tk):
 
         # Desc
         Label(self.frame, text="Descripcion:", font=self.font_st).grid(row=1, column=3, sticky=W)
-        Label(self.frame, text=obj.get_desc(), justify=LEFT, font=self.font_b, wraplength=245)\
+        Label(self.frame, text=obj.desc, justify=LEFT, font=self.font_b, wraplength=245)\
             .grid(row=2, column=3, rowspan=4, sticky=NW)
 
         # Zonas / Precios
         if obj_tipo == "r":
             Label(self.frame, text="Zonas Turisticas:", font=self.font_st).grid(row=1, column=4, sticky=W)
-            zonas = obj.get_zonas()
+            zonas = obj.zonas
             for i in range(len(zonas)):
                 z = zonas[i]
-                Button(self.frame, text=z.get_nombre(), bg=c_p1_v, fg=c_white,
+                Button(self.frame, text=z.nombre, bg=c_p1_v, fg=c_white,
                        command=lambda j=z: self.show_sub_window(j), height=3, width=30)\
                     .grid(row=i + 2, column=4, sticky=W)
         elif obj_tipo == "z":
             Label(self.frame, text="Incluye:", font=self.font_st).grid(row=1, column=4, sticky=W)
-            Label(self.frame, text=obj.get_extras(), justify=LEFT, font=self.font_b, wraplength=250) \
+            Label(self.frame, text=obj.extras, justify=LEFT, font=self.font_b, wraplength=250)\
                 .grid(row=2, column=4, rowspan=4, sticky=NW)
-            Label(self.frame, text="Precio: $" + str(obj.get_precio()), font=self.font_st).grid(row=3, column=4, sticky=W)
+            Label(self.frame, text="Precio: $" + str(obj.precio), font=self.font_st)\
+                .grid(row=3, column=4, sticky=W)
             Button(self.frame, text="RESERVAR", bg=c_p2_m, fg=c_black, command=self.show_reservar_window)\
                 .grid(row=6, column=4, sticky=E)
 
@@ -222,7 +227,7 @@ class App(Tk):
 
         frame_t = LabelFrame(self.frame, bg=c_white)
         frame_t.place(x=15, y=50)
-        frame_e = LabelFrame(self.frame, bg=c_white)
+        frame_e = LabelFrame(self.frame, bg=c_p2_v)
         frame_e.place(x=300, y=50)
         # Titulos
         Label(self.frame, text="RESERVAR", font=self.font_t).pack()
@@ -232,58 +237,107 @@ class App(Tk):
 
         Label(frame_t, text="USTED SELECCIONO:", font=self.font_st).grid(row=1, column=0, sticky=W)
 
-        Label(frame_t, text=str(region_selec.get_tipo_nombre()) + " de " + str(region_selec.get_nombre()),
+        Label(frame_t, text=str(region_selec.get_tipo_nombre()) + " de " + str(region_selec.nombre),
               font=self.font_b).grid(row=2, column=0, sticky=W)
-        Label(frame_t, text="Zona: " + str(zona_selec.get_nombre()), font=self.font_b).grid(row=3, column=0, sticky=W)
-        Label(frame_t, text="Precio: $" + str(zona_selec.get_precio()) + " por persona",
+        Label(frame_t, text="Zona: " + str(zona_selec.nombre), font=self.font_b).grid(row=3, column=0, sticky=W)
+        Label(frame_t, text="Precio: $" + str(zona_selec.precio) + " por persona",
               font=self.font_b).grid(row=4, column=0, sticky=W)
 
         Label(frame_t, text="Incluye:", font=self.font_b).grid(row=5, column=0, sticky=W)
-        Label(frame_t, text=zona_selec.get_extras(), justify=LEFT, font=self.font_b, wraplength=250) \
+        Label(frame_t, text=zona_selec.extras, justify=LEFT, font=self.font_b, wraplength=250) \
             .grid(row=6, column=0, sticky=NW)
 
-        Label(frame_e, text="INFORMACION DEL CLIENTE:", font=self.font_st).grid(row=1, column=1, columnspan=4)
+        Label(frame_e, text="INFORMACION DEL CLIENTE:", bg=c_p2_v, font=self.font_st).grid(row=1, column=1, columnspan=4)
 
-        Label(frame_e, text="Nombre:", font=self.font_b).grid(row=2, column=1)
-        nombre = Entry(frame_e)
-        nombre.grid(row=2, column=2)
+        entries = []
 
-        Label(frame_e, text="Edad:", font=self.font_b).grid(row=2, column=3)
-        edad = Entry(frame_e)
-        edad.grid(row=2, column=4)
+        Label(frame_e, text="Nombre:", bg=c_p2_v, font=self.font_b, height=2).grid(row=2, column=1)
+        entries.append(Entry(frame_e))
+        entries[0].grid(row=2, column=2)
 
-        Label(frame_e, text="Nacionalidad:", font=self.font_b).grid(row=3, column=1)
-        nacionalidad = Entry(frame_e)
-        nacionalidad.grid(row=3, column=2)
+        Label(frame_e, text="Edad:", bg=c_p2_v, font=self.font_b, height=2).grid(row=2, column=3)
+        entries.append(Entry(frame_e))
+        entries[1].grid(row=2, column=4)
 
-        Label(frame_e, text="Sexo:", font=self.font_b).grid(row=3, column=3)
-        sexo = Entry(frame_e)
-        sexo.grid(row=3, column=4)
+        Label(frame_e, text="Nacionalidad:", bg=c_p2_v, font=self.font_b, height=2).grid(row=3, column=1)
+        entries.append(Entry(frame_e))
+        entries[2].grid(row=3, column=2)
 
-        Label(frame_e, text="Cedula:", font=self.font_b).grid(row=4, column=1)
-        sexo = Entry(frame_e)
-        sexo.grid(row=4, column=2)
+        Label(frame_e, text="Sexo:", bg=c_p2_v, font=self.font_b, height=2).grid(row=3, column=3)
+        entries.append(ttk.Combobox(frame_e, values=['M', 'S'], width=5))
+        entries[3].grid(row=3, column=4, sticky=W)
 
-        Label(frame_e, text="Telefono:", font=self.font_b).grid(row=4, column=3)
-        telefono = Entry(frame_e)
-        telefono.grid(row=4, column=4)
+        Label(frame_e, text="Cedula:", bg=c_p2_v, font=self.font_b, height=2).grid(row=4, column=1)
+        entries.append(Entry(frame_e))
+        entries[4].grid(row=4, column=2)
 
-        Label(frame_e, text="Personas:", font=self.font_b).grid(row=5, column=1)
-        cnt = Entry(frame_e)
-        cnt.grid(row=5, column=2)
+        Label(frame_e, text="Telefono:", bg=c_p2_v, font=self.font_b, height=2).grid(row=4, column=3)
+        entries.append(Entry(frame_e))
+        entries[5].grid(row=4, column=4)
+
+        Label(frame_e, text="Personas:", bg=c_p2_v, font=self.font_b, height=2).grid(row=5, column=1)
+        entries.append(Entry(frame_e, width=5))
+        entries[6].insert(0, 1)
+        entries[6].grid(row=5, column=2, sticky=W)
+
+        Label(frame_e, text="Abono:", bg=c_p2_v, font=self.font_b, height=2).grid(row=5, column=3)
+        entries.append(Entry(frame_e))
+        entries[7].insert(0, 0)
+        entries[7].grid(row=5, column=4)
 
         frame_b = LabelFrame(self.frame, bg=c_white)
         frame_b.place(x=500, y=300)
         # Botones
-        Button(frame_b, text="CANCELAR", bg=c_p1_v, fg=c_white,
+        Button(frame_b, text="CANCELAR", bg=c_p2_m,
                command=lambda: self.show_main_window(), height=2, width=10)\
             .grid(row=0, column=0)
-        Button(frame_b, text="ABONAR", bg=c_p1_v, fg=c_white,
-               command=lambda: print("XX"), height=2, width=10)\
+        Button(frame_b, text="ABONAR", bg=c_p2_m,
+               command=lambda: self.entries_check(entries, False), height=2, width=10)\
             .grid(row=0, column=1)
-        Button(frame_b, text="PAGAR", bg=c_p1_v, fg=c_white,
-               command=lambda: print("XX"), height=2, width=10)\
+        Button(frame_b, text="PAGAR", bg=c_p2_m,
+               command=lambda: self.entries_check(entries, True), height=2, width=10)\
             .grid(row=0, column=2)
+
+    def entries_check(self, e, pago):
+        for i in range(len(e)-1):
+            if e[i].get() == "":
+                show_warningbox("Los campos no pueden estar vacios")
+                return
+
+        try:
+            cant = int(e[6].get())
+        except ValueError:
+            show_warningbox("Campo persona debe ser numero")
+            return
+
+        if cant <= 0:
+            show_warningbox("Deben ser 1 o mas personas")
+            return
+
+        if not pago:
+            try:
+                n = int(e[7].get())
+            except ValueError:
+                show_warningbox("El abono debe ser un numero")
+                return
+            if n <= 0:
+                show_warningbox("El abono debe ser mayor que 0")
+                return
+
+        reserva = Reserva(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7])
+        self.show_pagar_window()
+
+    def show_pagar_window(self):
+        self.frame.destroy()
+        # self.configure(background='#FFFFFF')
+        self.geometry("800x400")
+        self.frame = LabelFrame(self, borderwidth=0, highlightthickness=0, bg=c_white)
+        self.frame.pack(side=LEFT, fill=BOTH, expand=TRUE, padx=25, pady=25)
+
+
+# funciones
+def show_warningbox(msg):
+    messagebox.showwarning("warning", msg)
 
 
 # Globals
@@ -307,5 +361,5 @@ def get_region(region):
         return None
 
     for i in Regiones:
-        if i.get_nombre() == region:
+        if i.nombre == region:
             return i

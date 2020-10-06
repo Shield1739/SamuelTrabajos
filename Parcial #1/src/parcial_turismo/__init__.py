@@ -1,6 +1,4 @@
-from parcial_turismo.model import Region
-from parcial_turismo.model import Zona
-
+from parcial_turismo.model import *
 
 regiones = [
         Region(1, "Bocas del Toro",
