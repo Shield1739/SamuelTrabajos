@@ -1,4 +1,5 @@
-from parcial_turismo.model import *
+from parcial_turismo.data import Region, Zona, Reserva
+
 
 regiones = [
         Region(1, "Bocas del Toro",
@@ -12,7 +13,7 @@ regiones = [
                         "y la laguna de Chiriquí, desde la apertura del mar Caribe.",
                         "\u29BF 1 Noche\n"
                         "\u29BF Desayuno\n"
-                        "\u29BF Masaje"),
+                        "\u29BF Masaje\n"),
                    Zona("Laguna de Chiriquí", 2000,
                         "La laguna de Chiriquí Grande es una laguna costera del mar Caribe de Panamá; puerto natural "
                         "localizado junto a la frontera sureste de Costa Rica, en la provincia de Bocas del Toro. "
@@ -29,7 +30,7 @@ regiones = [
                         "\u29BF Cena\n"
                         "\u29BF Viaje en barco"
                         ),
-                   Zona("Parque nacional Isla Bastimentos", 4000,
+                   Zona("Parque Nacional Isla Bastimentos", 4000,
                         "El Parque nacional marino Isla Bastimentos se encuentra ubicado en el Archipiélago "
                         "de Bocas del Toro al norte de la provincia del mismo nombre, cerca de la ciudad de Bocas del "
                         "Toro y la aldea indígena Ngäbe-Buglé Salt Creek. Fue creado en 1988 y cuenta "
@@ -333,12 +334,3 @@ regiones = [
 
 def get_regiones_list():
     return regiones
-
-
-def get_o_tipo(obj):
-    if isinstance(obj, Region):
-        return "r"
-    elif isinstance(obj, Zona):
-        return "z"
-    else:
-        return "n"

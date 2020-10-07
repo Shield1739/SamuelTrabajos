@@ -1,32 +1,28 @@
-class Region:
-    def __init__(self, tipo, nombre, desc, zonas):
-        self.tipo = tipo
-        self.nombre = nombre
-        self.desc = desc
-        self.zonas = zonas
+import parcial_turismo as pt
+from parcial_turismo.data import Region, Zona, Cliente, Reserva
 
-    def get_tipo_nombre(self):
-        if self.tipo == 1:
-            return "Provincia"
+
+class Model:
+    def __init__(self):
+        self.regiones = pt.get_regiones_list()
+        self.region_act = None  # Region(0, "", "", "")
+        self.zona_act = None  # Zona(0, "", "", "")
+        self.cliente_act = None  # Cliente("Javier", "18", "Panama", True, 'F', "8-888-8888", "999-0101")
+        self.reserva_list = []
+
+    def get_tipo_obj(self, obj):
+        if isinstance(obj, Region):
+            return "region"
+        elif isinstance(obj, Zona):
+            return "zona"
         else:
-            return "Comarca"
+            # ERROR
+            return "none"
 
+    def set_regionact_by_nombre(self, nombre):
+        if nombre == "":
+            return None
 
-class Zona:
-    def __init__(self, nombre, precio, desc, extras):
-        self.nombre = nombre
-        self.precio = precio
-        self.desc = desc
-        self.extras = extras
-
-
-class Reserva:
-    def __init__(self, nombre, edad, nacionalidad, sexo, cedula, telefono, cnt, abono):
-        self.nombre = nombre
-        self.edad = edad
-        self.nacionalidad = nacionalidad
-        self.sexo = sexo
-        self.cedula = cedula
-        self.telefono = telefono
-        self.cnt = cnt
-        self.abono = abono
+        for i in self.regiones:
+            if i.nombre.lower() == nombre.lower():
+                self.region_act = i
