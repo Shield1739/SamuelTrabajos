@@ -1,7 +1,7 @@
 import os
 from tkinter import *
-from tkinter import ttk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
+from tkinter import scrolledtext as st
 from tkinter.font import Font
 
 from PIL import ImageTk, Image
@@ -24,11 +24,12 @@ class View:
         # Fonts
         self.font_t = Font(family='Courier', size=15, weight='bold')
         self.font_st = Font(family='Courier', size=12, weight='bold')
+        self.font_stu = Font(family='Courier', size=12, weight='bold', underline=True)
         self.font_b = Font(family='Courier', size=10)
 
-        self.subtotal_label = Label()
-        self.descuento_label = Label()
-        self.total_label = Label()
+        self.total_var = []
+        for i in range(3):
+            self.total_var.append(StringVar())
 
         self.show_presentacion_window()
 
@@ -65,7 +66,7 @@ class View:
         self.frame.destroy()
         self.root.geometry("900x600")
 
-        self.frame = LabelFrame(self.root, borderwidth=4, relief=SOLID)
+        self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID)
         self.frame.pack(pady=20)
 
         Label(self.frame, text="ELIGA SU DESTINO", font=self.font_t, height=2).grid(row=0, column=0, columnspan=2)
@@ -81,8 +82,8 @@ class View:
         self.create_provincias_text(mapa)
         self.create_comarcas_text(mapa)
 
-        mapa.tag_bind("p", "<ButtonRelease-1>", self.on_canvas_click)
-        mapa.tag_bind("c", "<ButtonRelease-1>", self.on_canvas_click)
+        mapa.tag_bind("p", "<Button-1>", self.on_canvas_click)
+        mapa.tag_bind("c", "<Button-1>", self.on_canvas_click)
 
         Label(self.frame, text="MOSTAR: ", font=self.font_st, height=5).grid(row=3, column=0, sticky=W)
 
@@ -100,7 +101,7 @@ class View:
         Button(frame_b, text="CANCELAR RESERVAS", bg=c_yellow,
                command=self.cancelar_reservas, height=2).grid(row=0, column=0)
         Button(frame_b, text="PAGAR", bg=c_yellow,
-               command=lambda: print("DO PAGAR WINDOW"), height=2).grid(row=0, column=1, padx=10)
+               command=self.show_pagar_window, height=2).grid(row=0, column=1, padx=10)
 
     def change_display_mode(self, mapa):
         mapa.delete("p")
@@ -118,11 +119,15 @@ class View:
         w = event.widget
         i = w.find_closest(event.x, event.y)
 
-        r = w.itemcget(*i, "text")
+        try:
+            r = w.itemcget(*i, "text")
+        except TclError:
+            return
+
         r = r.replace("\n", " ")
 
         self.controller.set_regionact_by_nombre(r)
-        self.show_sub_window(self.controller.model.region_act)
+        self.show_sub_window()
 
     def create_provincias_text(self, mapa):
         canvas_text_provincias = [mapa.create_text(75, 100, text='BOCAS\nDEL TORO'),
@@ -156,236 +161,424 @@ class View:
 
         if v:
             self.controller.clear_reservas()
+            self.controller.model.cliente_act = None
 
     # sub windows
-    def show_sub_window(self, obj):
+    def show_sub_window(self):
         # Init
         self.frame.destroy()
-        self.root.geometry("800x400")
+        self.root.geometry("900x600")
 
-        self.frame = LabelFrame(self.root, borderwidth=4, relief=SOLID, pady=10, padx=10)
+        self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID, pady=10, padx=10)
         self.frame.pack(side=LEFT, fill=BOTH, expand=TRUE, padx=25, pady=25)
 
-        obj_tipo = self.controller.get_tipo_obj(obj)
+        model = self.controller.model
 
         Button(self.frame, text="\u21E6 ATRAS", bg=c_yellow,
-               command=lambda: self.show_main_window() if obj_tipo == "region" else
-               self.show_sub_window(self.controller.model.region_act)).grid(row=0, column=0, sticky=W)
-
-        # Titulos
-        Label(self.frame, text=obj.nombre, font=self.font_t).grid(row=0, column=0, columnspan=3)
-
-        # Imagen
-        Label(self.frame, text="Foto:", font=self.font_st).grid(row=1, column=0, sticky=W)
+               command=lambda: self.show_main_window() if model.zona_act is None else
+               self.sub_change_objact(model.region_act)).place(x=0, y=0)
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        img_path = ""
 
-        if obj_tipo == "region":
-            img_path = str(dir_path) + '/img/mapas/' + str(obj.nombre) + '.png'
-        elif obj_tipo == "zona":
-            self.controller.set_zonaact(obj)
-            m = self.controller.model
-            img_path = str(dir_path) + '/img/zonas/' + str(m.region_act.nombre) + '/' + str(m.zona_act.nombre) + '.png'
+        if model.zona_act is None:
+            act = model.region_act
+            frame3_titulo = "Zonas Turisticas"
+            img_path = str(dir_path) + '/img/mapas/' + str(model.region_act.nombre) + '.png'
+        else:
+            act = model.zona_act
+            frame3_titulo = "Incluye"
+            self.controller.set_zonaact(act)
+            img_path = str(dir_path) + '/img/zonas/' + str(model.region_act.nombre) + '/' + str(
+                model.zona_act.nombre) + '.png'
+
+        # Titulo
+        Label(self.frame, text="ELIGA SU DESTINO", font=self.font_t).pack()
+        Label(self.frame, text=act.nombre, font=self.font_st).pack()
+
+        # # Frames
+        # Imagen
+        frame_foto = self.create_frame(self.frame, "", 475, 475)
+        frame_foto.place(y=50)
 
         img = ImageTk.PhotoImage(Image.open(img_path))
 
-        canvas = Canvas(self.frame, width=250, height=250)
+        canvas = Canvas(frame_foto, width=475, height=475)
+        canvas.pack(expand=YES, fill=BOTH)
+
         canvas.image = img
-        canvas.create_image(125, 125, image=img)
-        canvas.grid(row=2, column=0, rowspan=4, sticky=W)
+        canvas.create_image(0, 0, image=img, anchor=NW)
 
-        # Desc
-        Label(self.frame, text="Descripcion:", font=self.font_st).grid(row=1, column=1, sticky=W)
+        # Descripcion
+        frame_desc = self.create_frame(self.frame, "Descripcion", 350, 230)
+        frame_desc.pack_propagate(False)
+        frame_desc.place(x=475, y=50)
 
-        desc_frame = LabelFrame(self.frame, width=250, height=250)
-        desc_frame.grid_rowconfigure(0, weight=1)
-        desc_frame.grid_columnconfigure(0, weight=1)
-        desc_frame.grid_propagate(False)
-        desc_frame.grid(row=2, column=1, rowspan=4, sticky=NSEW)
+        descripcion_box = st.ScrolledText(frame_desc, font=self.font_b, wrap=WORD, borderwidth=1, highlightthickness=1)
+        descripcion_box.insert(INSERT, act.desc)
+        descripcion_box.config(state=DISABLED)
+        descripcion_box.pack(expand=True, fill=BOTH)
 
-        # TODO WARP IN FUNC !A
-        desc_text = Text(desc_frame, font=self.font_b, wrap=WORD, borderwidth=0, highlightthickness=0)
-        desc_text.insert(INSERT, obj.desc)
-        desc_text.config(state=DISABLED)
-        desc_text.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
+        # Zonas/Extras
+        frame3 = self.create_frame(self.frame, frame3_titulo, 350, 230)
+        frame3.place(x=475, y=290)
 
-        scrollbar = Scrollbar(desc_frame, command=desc_text.yview)
-        scrollbar.grid(row=0, column=1, sticky='nsew')
-        desc_text['yscrollcommand'] = scrollbar.set
+        if model.zona_act is None:
+            zonas = act.zonas
+            for i in zonas:
+                Button(frame3, text=i.nombre, bg=c_light_blue,
+                       command=lambda j=i: self.sub_change_objact(j), height=2, width=40).pack(pady=5)
+        else:
+            frame3.config(height=190)
+            extras_box = st.ScrolledText(frame3, font=self.font_b, wrap=WORD, borderwidth=1,
+                                         highlightthickness=1)
+            extras_box.insert(INSERT, act.extras)
+            extras_box.config(state=DISABLED)
+            extras_box.pack(expand=True, fill=BOTH)
 
-        # Zonas / Precios
-        if obj_tipo == "region":
-            Label(self.frame, text="Zonas Turisticas:", font=self.font_st).grid(row=1, column=2, sticky=W)
-            zonas = obj.zonas
-            for i in range(len(zonas)):
-                z = zonas[i]
-                Button(self.frame, text=z.nombre, bg=c_light_blue,
-                       command=lambda j=z: self.show_sub_window(j), height=3, width=30).grid(row=i + 2, column=2)
-        elif obj_tipo == "zona":
-            Label(self.frame, text="Incluye:", font=self.font_st).grid(row=1, column=2, sticky=W)
+            precio_frame = self.create_frame(self.frame, "", 350, 45)
+            precio_frame.place(x=475, y=480)
 
-            extras_frame = LabelFrame(self.frame, width=200, height=250, borderwidth=0, highlightthickness=0)
-            extras_frame.grid_rowconfigure(0, weight=1)
-            extras_frame.grid_columnconfigure(0, weight=1)
-            extras_frame.grid_propagate(False)
-            extras_frame.grid(row=2, column=2, rowspan=2, columnspan=2, sticky=NSEW)
+            Label(precio_frame, text="Precio: $" + str(act.precio), font=self.font_st).place(y=10)
+            Button(precio_frame, text="RESERVAR", bg=c_yellow, command=self.show_reservar_window).place(x=275, y=10)
 
-            # TODO WARP IN FUNC !A
-            extras_text = Text(extras_frame, font=self.font_b, wrap=WORD, borderwidth=0, highlightthickness=0)
-            extras_text.insert(INSERT, obj.extras)
-            extras_text.config(state=DISABLED)
-            extras_text.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
+    def create_frame(self, parent, text, width, height):
+        # , relief=SOLID,  borderwidth=1
+        if text == "":
+            frame = Frame(parent, width=width, height=height)
+        else:
+            frame = LabelFrame(parent, text=text, width=width, height=height, relief=SOLID)
+        frame.pack_propagate(False)
+        return frame
 
-            Label(self.frame, text="Precio: $" + str(obj.precio), font=self.font_st).grid(row=5, column=2, sticky=W)
-            Button(self.frame, text="RESERVAR", bg=c_yellow, command=self.show_reservar_window) \
-                .grid(row=5, column=3, sticky=W)
+    def sub_change_objact(self, obj):
+        self.controller.set_objact(obj)
+        self.show_sub_window()
 
     def show_reservar_window(self):
-        # Init
         self.frame.destroy()
-        self.root.geometry("800x400")
+        self.root.geometry("900x600")
 
-        self.frame = LabelFrame(self.root, borderwidth=4, relief=SOLID)
+        self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID, pady=10, padx=10, bg=c_light_blue)
         self.frame.pack(side=LEFT, fill=BOTH, expand=TRUE, padx=25, pady=25)
 
-        m = self.controller.model
+        model = self.controller.model
 
-        # Titulos
-        Label(self.frame, text="RESERVAR", font=self.font_t).pack()
         Button(self.frame, text="\u21E6 ATRAS", bg=c_yellow,
-               command=lambda: self.show_sub_window(m.zona_act)).place(x=5, y=5)
+               command=lambda: self.sub_change_objact(model.zona_act)).place(x=5, y=5)
 
-        # Destino Frame
-        frame_t = LabelFrame(self.frame, bg=c_light_blue, height=75, width=725)
-        frame_t.grid_propagate(False)
-        frame_t.pack(pady=5)
+        cant_var = StringVar()
+        cant_var.set("1")
+        cant_var.trace('w', lambda a, b, c: self.check_cant(cant_var))
 
-        Label(frame_t, text="DESTINO:", font=self.font_st, bg=c_light_blue).grid(row=0, column=0, sticky=E)
-        dt = str(m.zona_act.nombre) + ", " + str(m.region_act.get_tipo_nombre()) + " de " + str(m.region_act.nombre)
-        Label(frame_t, text=dt, font=self.font_st, bg=c_light_blue).grid(row=0, column=1, sticky=W)
-        Label(frame_t, text="PRECIO:", font=self.font_st, bg=c_light_blue).grid(row=1, column=0, sticky=E)
-        Label(frame_t, text="$" + str(m.zona_act.precio) + " por persona", font=self.font_st, bg=c_light_blue).grid(
-            row=1, column=1, sticky=W)
+        # Titulo
+        Label(self.frame, text="CONFIRMAR RESERVA", font=self.font_t, relief=SOLID).pack()
 
-        # TODO MAYBE WARP IN FUNC?
-        # Cliente frame
-        frame_e = LabelFrame(self.frame, bg=c_light_blue, height=175, width=725)
-        frame_e.grid_propagate(False)
-        frame_e.pack()
+        # # Frames
+        # Destino
+        frame_destino = self.create_frame(self.frame, "Informacion Destino", 800, 100)
+        frame_destino.grid_propagate(False)
+        frame_destino.pack(pady=5)
 
-        entries = []
+        Label(frame_destino, text="Region:", font=self.font_stu).grid(row=0, column=0, sticky=E)
+        region_txt = str(model.region_act.get_tipo_nombre()) + " de " + str(model.region_act.nombre)
+        Label(frame_destino, text=region_txt, font=self.font_st).grid(row=0, column=1, sticky=W)
+
+        Label(frame_destino, text="Zona:", font=self.font_stu).grid(row=1, column=0, sticky=E)
+        Label(frame_destino, text=model.zona_act.nombre, font=self.font_st).grid(row=1, column=1, sticky=W)
+
+        Label(frame_destino, text="Precio:", font=self.font_stu).grid(row=2, column=0, sticky=E)
+        Label(frame_destino, text="$" + str(model.zona_act.precio), font=self.font_st).grid(row=2, column=1, sticky=W)
+
+        # Cliente
+        frame_cliente = self.create_frame(self.frame, "Informacion Cliente", 400, 300)
+        frame_cliente.grid_propagate(False)
+        frame_cliente.place(y=150)
+
+        entries_strings = ["Nombre:", "Cedula:", "Edad:", "Sexo:", "Nacionalidad:", "Telefono:"]
         entries_vars = []
-        entries_strings = ["Nombre:", "Edad:", "Nacionalidad:", "Es Jubilado?", "Sexo:", "Cedula", "Telefono:"]
 
-        for i in range(2):
-            for j in range(4 - i):
-                s = entries_strings[j + (i * 4)]
-                Label(frame_e, text=s, bg=c_light_blue, font=self.font_b, height=2).grid(row=j, column=i * 2, sticky=E)
+        for i in range(len(entries_strings)):
+            j = entries_strings[i]
+            Label(frame_cliente, text=j, font=self.font_stu, height=2).grid(row=i, column=0, sticky=E)
+            entries_vars.append(StringVar())
 
-                if s == "Es Jubilado?":
-                    entries.append(Checkbutton(frame_e, bg=c_light_blue,
-                                               offvalue=False, onvalue=True, variable=self.controller.es_jubilado,
-                                               command=self.check_totales))
-                    entries[-1].grid(row=j, column=i+1, sticky=W)
-                    continue
+            if j == "Sexo:":
+                om = OptionMenu(frame_cliente, entries_vars[-1], *['M', 'F', 'OTRO'])
+                om.config(relief=SOLID)
+                om.grid(row=i, column=1, sticky=W)
+                label = Label(frame_cliente, text="No", fg=c_red)
+                label.grid(row=i - 1, column=1, sticky=W, padx=90)
+                entries_vars[2].trace('w', lambda a, b, c: self.check_jubilado(entries_vars[2], entries_vars[3], label))
+                entries_vars[3].trace('w', lambda a, b, c: self.check_jubilado(entries_vars[2], entries_vars[3], label))
+                continue
 
-                entries_vars.append(StringVar())
-                if s == "Sexo:":
-                    entries.append(OptionMenu(frame_e, entries_vars[-1], *['M', 'F', 'OTRO']))
-                    entries[-1].config(bd=0)
-                    entries[-1].grid(row=j, column=i * 2 + 1, sticky=W)
-                    continue
+            entry = Entry(frame_cliente, textvariable=entries_vars[-1], relief=SOLID)
+            entry.grid(row=i, column=1, sticky=W)
 
-                entries.append(Entry(frame_e, textvariable=entries_vars[-1]))
-                entries[-1].grid(row=j, column=i * 2 + 1)
-                # entries.append(Entry(frame_e))
-                # entries[-1].grid(row=j, column=i*2 + 1)
+            if j == "Edad:":
+                entry.config(width=5)
+                entries_vars[-1].set("18")
+                Label(frame_cliente, text="Jubilado:").grid(row=i, column=1, sticky=W, padx=40)
 
-        # TODO PENSAR MEJOR ESTO
-        if m.cliente_act is not None:
-            c = m.cliente_act
-            entries_vars[0].set(c.nombre)
-            entries_vars[1].set(c.edad)
-            entries_vars[2].set(c.nacionalidad)
-            entries_vars[3].set(c.sexo)
-            entries_vars[4].set(c.cedula)
-            entries_vars[5].set(c.telefono)
-            self.controller.es_jubilado.set(c.jubilado)
+        if model.cliente_act is not None:
+            c = model.cliente_act.get_attr_list()
+            for i, j in zip(entries_vars, c):
+                i.set(j)
+            widgets = frame_cliente.winfo_children()
+            for i in widgets:
+                j = i.winfo_class()
+                if j == "Entry" or j == "Menubutton":
+                    i.config(state=DISABLED)
 
-            for i in entries:
-                i.config(state=DISABLED)
+        # Pago
+        frame_pago = self.create_frame(self.frame, "Informacion Pago", 400, 300)
+        frame_pago.grid_propagate(False)
+        frame_pago.place(x=420, y=150)
 
-        Label(frame_e, text="# de Personas:", bg=c_light_blue, font=self.font_b, height=2)\
-            .grid(row=0, column=5, sticky=E)
-        cantidad = Entry(frame_e, textvariable=self.controller.cant_var, width=5)
-        self.controller.cant_var.trace("w", self.check_totales)
-        cantidad.grid(row=0, column=6, sticky=W)
+        Label(frame_pago, text="Adultos:", font=self.font_stu, height=2).grid(row=0, column=0, sticky=E)
+        Entry(frame_pago, textvariable=cant_var, relief=SOLID, width=5).grid(row=0, column=1, sticky=W)
 
-        Label(frame_e, text="Abono:", bg=c_light_blue, font=self.font_b, height=2).grid(row=1, column=5, sticky=E)
-        abono = Entry(frame_e, textvariable="$" + str(self.controller.abono_var), width=10)
-        # self.controller.cant_var.trace("w", self.update_total)
-        abono.grid(row=1, column=6, sticky=W)
+        Label(frame_pago, text="Sub-Total:", font=self.font_stu, height=2).grid(row=1, column=0, sticky=E)
+        Label(frame_pago, text="Descuento:", font=self.font_stu, height=2).grid(row=2, column=0, sticky=E)
+        Label(frame_pago, text="Total:", font=self.font_stu, height=2).grid(row=3, column=0, sticky=E)
 
-        # Totals
-        self.controller.update_totales()
+        for i in range(len(self.total_var)):
+            Entry(frame_pago, textvariable=self.total_var[i], relief=SOLID, state=DISABLED).grid(row=i+1, column=1, sticky=W)
 
-        Label(frame_e, text="Sub-Total:", bg=c_light_blue, font=self.font_b).grid(row=2, column=5, sticky=NE)
-        self.subtotal_label = Label(frame_e, text="$" + str(self.controller.subtotal), bg=c_light_blue,
-                                    font=self.font_b)
-        self.subtotal_label.grid(row=2, column=6, sticky=NW)
+        Button(frame_pago, text="CANCELAR", bg=c_yellow,
+               command=lambda: self.show_main_window() if show_yesnobox("Desea cancelar y volver al menu principal?")
+               else None, height=2).place(x=5, y=230)
+        Button(frame_pago, text="CONFIRMAR RESERVA", bg=c_yellow,
+               command=lambda: self.check_confirmar_reserva(entries_vars), height=2) \
+            .place(x=250, y=230)
 
-        Label(frame_e, text="Descuento:", bg=c_light_blue, font=self.font_b).grid(row=2, column=5, sticky=SE)
-        self.descuento_label = Label(frame_e, text="$" + str(self.controller.descuento), bg=c_light_blue,
-                                     font=self.font_b)
-        self.descuento_label.grid(row=2, column=6, sticky=SW)
+        self.controller.update_work_vars()
+        self.refresh_totals()
 
-        Label(frame_e, text="Total:", bg=c_light_blue, font=self.font_b).grid(row=3, column=5, sticky=NE)
-        self.total_label = Label(frame_e, text="$" + str(self.controller.subtotal - self.controller.descuento),
-                                 bg=c_light_blue, font=self.font_b)
-        self.total_label.grid(row=3, column=6, sticky=NW)
-
-        frame_b = LabelFrame(self.frame, borderwidth=0, highlightthickness=0)
-        frame_b.place(x=520, y=295)
-        # Botones
-        Button(frame_b, text="CANCELAR", bg=c_yellow,
-               command=lambda: self.show_main_window(), height=2).grid(row=0, column=0)
-        Button(frame_b, text="CONFIRMAR RESERVA", bg=c_yellow,
-               command=lambda: self.entries_check(entries, True), height=2) \
-            .grid(row=0, column=1, padx=10)
-
-    def check_totales(self, *args):
-        if self.controller.cant_var.get() == "":
+    def check_jubilado(self, edad, sexo, label):
+        if edad.get() == "":
             return
 
         try:
-            cant = int(self.controller.cant_var.get())
+            e = int(edad.get())
         except ValueError:
-            show_warningbox("Campo persona debe ser numero")
-            self.controller.cant_var.set("1")
-            cant = 1
+            show_warningbox("La edad solo puede ser un numero")
+            edad.set("18")
+            return
 
-        if cant <= 0:
-            show_warningbox("Deben ser 1 o mas personas")
-            self.controller.cant_var.set("1")
+        if e < 18:
+            show_warningbox("La edad tiene que ser mayor que 18")
+            edad.set("18")
+            return
 
-        self.controller.update_totales()
-        self.refresh_totales_labels()
+        if e >= 57 and sexo.get() == "F":
+            label.config(text="Si", fg=c_green)
+            self.controller.work_es_jubilado = True
+        elif e >= 62 and sexo.get() == "M":
+            label.config(text="Si", fg=c_green)
+            self.controller.work_es_jubilado = True
+        else:
+            label.config(text="No", fg=c_red)
+            self.controller.work_es_jubilado = False
 
-    def refresh_totales_labels(self):
-        self.subtotal_label.config(text="$" + str(self.controller.subtotal))
-        self.descuento_label.config(text="$" + str(self.controller.descuento))
-        self.total_label.config(text="$" + str(self.controller.subtotal - self.controller.descuento))
+        self.controller.update_work_vars()
+        self.refresh_totals()
 
-    def check_cliente_info(self):
-        print()
+    def check_cant(self, cant):
+        if cant.get() == "":
+            return
+
+        try:
+            e = int(cant.get())
+        except ValueError:
+            show_warningbox("La cantidad de personas debe ser un numero")
+            cant.set(self.controller.work_cant)
+            return
+
+        if e <= 0 or e > 10:
+            show_warningbox("La cantidad de personas debe ser mayor que 0 y menor que 10")
+            cant.set(self.controller.work_cant)
+            return
+
+        self.controller.work_cant = e
+        self.controller.update_work_vars()
+        self.refresh_totals()
+
+    def refresh_totals(self):
+        self.total_var[0].set("$" + str(self.controller.work_subtotal))
+        self.total_var[1].set("$" + str(self.controller.work_descuento))
+        self.total_var[2].set("$" + str(self.controller.work_subtotal - self.controller.work_descuento))
+
+    def check_confirmar_reserva(self, entries_vars):
+        for i in entries_vars:
+            if i.get() == "":
+                show_warningbox("Los campos de informacion del cliente no pueden estar vacios")
+                return
+        if self.controller.model.cliente_act is None:
+            e = []
+            for i in entries_vars:
+                e.append(i.get())
+            self.controller.set_cliente_act(e)
+
+        self.controller.add_reserva()
+
+        r = show_yesnobox("Desea agregar otra reserva?")
+        if r:
+            self.show_main_window()
+        else:
+            self.show_pagar_window()
 
     def show_pagar_window(self):
-        self.frame.destroy()
-        self.root.geometry("800x400")
+        if len(self.controller.model.reserva_list) == 0:
+            show_warningbox("No tiene ninguna reserva activa")
+            return
 
-        self.frame = LabelFrame(self.root, borderwidth=4, relief=SOLID)
+        self.frame.destroy()
+        self.root.geometry("900x600")
+
+        self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID, pady=10, padx=10, bg=c_light_blue)
         self.frame.pack(side=LEFT, fill=BOTH, expand=TRUE, padx=25, pady=25)
+
+        Button(self.frame, text="\u21E6 ATRAS", bg=c_yellow,
+               command=self.show_main_window).place(x=0, y=0)
+
+        Label(self.frame, text="PAGAR", font=self.font_t, relief=SOLID).pack()
+
+        # # Frames
+        # Reservas
+        frame_reservas = self.create_frame(self.frame, "", 475, 475)
+        frame_reservas.config(relief=SOLID, bd=2)
+        frame_reservas.place(y=50)
+        frame_scroll = ScrollableFrame(frame_reservas)
+        frame_scroll.pack_propagate(False)
+        frame_scroll.pack(expand=True, fill=BOTH)
+
+        frame_sub_reserva = []
+        reservas_list = self.controller.model.reserva_list
+        subtotal = 0
+        descuento = 0
+
+        for i in range(len(reservas_list)):
+            j = reservas_list[i]
+            frame_sub_reserva.append(self.create_frame(frame_scroll.scrollable_frame, "", 435, 125))
+            frame_sub_reserva[-1].config(relief=SOLID, bd=2)
+            frame_sub_reserva[-1].grid_propagate(False)
+            frame_sub_reserva[-1].pack(pady=5, padx=5)
+
+            frame = frame_sub_reserva[-1]
+
+            Label(frame, text="Region:", font=self.font_st).grid(row=0, column=0, sticky=E)
+            region_txt = str(j.tipo_region) + " de " + str(j.nombre_region)
+            Label(frame, text=region_txt, font=self.font_b).grid(row=0, column=1, columnspan=3, sticky=W)
+
+            Label(frame, text="Zona:", font=self.font_st).grid(row=1, column=0, sticky=E)
+            Label(frame, text=j.zona.nombre, font=self.font_b).grid(row=1, column=1, columnspan=3, sticky=W)
+
+            Label(frame, text="Precio:", font=self.font_st).grid(row=2, column=0, sticky=E)
+            Label(frame, text="$" + str(j.zona.precio), font=self.font_b).grid(row=2, column=1, sticky=W)
+
+            Label(frame, text="Adultos:", font=self.font_st).grid(row=2, column=2, sticky=E)
+            Label(frame, text=j.personas, font=self.font_b).grid(row=2, column=3, sticky=W)
+
+            Label(frame, text="Sub-Total:", font=self.font_st).grid(row=3, column=0, sticky=E)
+            Label(frame, text="$" + str(j.subtotal), font=self.font_b).grid(row=3, column=1, sticky=W)
+
+            Label(frame, text="Descuento:", font=self.font_st).grid(row=4, column=0, sticky=E)
+            Label(frame, text="$" + str(j.descuento), font=self.font_b).grid(row=4, column=1, sticky=W)
+
+            Button(frame, text="CANCELAR", bg=c_red, relief=SOLID,
+                   command=lambda k=i: self.remove_reserva(k)).place(x=355, y=90)
+
+            subtotal += j.subtotal
+            descuento += j.descuento
+
+        # Cliente
+        frame_cliente = self.create_frame(self.frame, "Informacion Cliente", 345, 250)
+        frame_cliente.grid_propagate(False)
+        frame_cliente.place(x=480, y=50)
+
+        entries_strings = ["Nombre:", "Cedula:", "Edad:", "Sexo:", "Nacionalidad:", "Telefono:"]
+
+        c = self.controller.model.cliente_act.get_attr_list()
+        for i in range(len(entries_strings)):
+            j = entries_strings[i]
+            Label(frame_cliente, text=j, font=self.font_b, height=2).grid(row=i, column=0, sticky=E)
+
+            if j == "Sexo:":
+                s = StringVar()
+                s.set(c[i])
+                om = OptionMenu(frame_cliente, s, *['M', 'F', 'OTRO'])
+                om.config(relief=SOLID, state=DISABLED)
+                om.grid(row=i, column=1, sticky=W)
+                if self.controller.model.cliente_act.jubilado:
+                    label = Label(frame_cliente, text="Si", fg=c_green)
+                else:
+                    label = Label(frame_cliente, text="No", fg=c_red)
+                label.grid(row=i - 1, column=1, sticky=W, padx=90)
+                continue
+
+            entry = Entry(frame_cliente, textvariable=c[i], relief=SOLID)
+            entry.delete(0, 'end')
+            entry.insert(0, c[i])
+            entry.config(state=DISABLED)
+            entry.grid(row=i, column=1, sticky=W)
+
+            if j == "Edad:":
+                entry.config(width=5)
+                Label(frame_cliente, text="Jubilado:").grid(row=i, column=1, sticky=W, padx=40)
+
+            # Total
+            frame_total = self.create_frame(self.frame, "Informacion Pago", 345, 200)
+            frame_total.grid_propagate(False)
+            frame_total.place(x=480, y=310)
+
+            Label(frame_total, text="Total de\nReservas:", font=self.font_stu).grid(row=0, column=0, sticky=E)
+            Label(frame_total, text=len(reservas_list), font=self.font_b).grid(row=0, column=1, sticky=W)
+
+            Label(frame_total, text="Sub-Total:", font=self.font_stu).grid(row=1, column=0, sticky=E)
+            Label(frame_total, text="$" + str(subtotal), font=self.font_b).grid(row=1, column=1, sticky=W)
+
+            Label(frame_total, text="Descuento:", font=self.font_stu).grid(row=2, column=0, sticky=E)
+            Label(frame_total, text="$" + str(descuento), font=self.font_b).grid(row=2, column=1, sticky=W)
+
+            Label(frame_total, text="Total:", font=self.font_stu).grid(row=3, column=0, sticky=E)
+            Label(frame_total, text="$" + str(subtotal - descuento), font=self.font_b).grid(row=3, column=1, sticky=W)
+
+    def remove_reserva(self, index):
+        if show_yesnobox("Seguro que desea cancelar esta reserva?"):
+            self.controller.remove_reserva(index)
+            if len(self.controller.model.reserva_list) == 0:
+                show_warningbox("No tiene ninguna reserva activa")
+                self.controller.clear_reservas()
+                self.show_main_window()
+            else:
+                self.show_pagar_window()
+        else:
+            return
+
+
+class ScrollableFrame(ttk.Frame):
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+        canvas = Canvas(self)
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        gui_style = ttk.Style()
+        gui_style.configure('My.TFrame', background=c_white)
+        self.scrollable_frame = ttk.Frame(canvas, style='My.TFrame')
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
 
 # funciones
@@ -417,3 +610,4 @@ c_blue = '#0336FF'
 c_light_blue = "#03b3ff"
 c_pink = '#FF0266'
 c_red = '#FF0335'
+c_green = '#41c300'

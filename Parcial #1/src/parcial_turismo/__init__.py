@@ -7,14 +7,14 @@ regiones = [
                "continente y nueve islas principales. La provincia consiste en el Archipiélago de Bocas del Toro, "
                "Bahía Almirante, Laguna de Chiriquí, y la tierra firme adyacente.",
                [
-                   Zona("Archipiélago de Bocas del Toro", 1000,
+                   Zona("Archipiélago de Bocas del Toro", 500,
                         "El archipiélago de Bocas del Toro es un grupo de islas en el mar Caribe el cual se localiza "
                         "al noroeste de la república de Panamá. Este conjunto de islas separa la bahía del Almirante "
                         "y la laguna de Chiriquí, desde la apertura del mar Caribe.",
                         "\u29BF 1 Noche\n"
                         "\u29BF Desayuno\n"
                         "\u29BF Masaje\n"),
-                   Zona("Laguna de Chiriquí", 2000,
+                   Zona("Laguna de Chiriquí", 800,
                         "La laguna de Chiriquí Grande es una laguna costera del mar Caribe de Panamá; puerto natural "
                         "localizado junto a la frontera sureste de Costa Rica, en la provincia de Bocas del Toro. "
                         "Está flanqueada por las puntas Térraba al noroeste, y Valiente y Chiriquí Grande en la "
@@ -22,7 +22,7 @@ regiones = [
                         "\u29BF 3 Noche\n"
                         "\u29BF Desayuno\n"
                         "\u29BF Masaje"),
-                   Zona("Isla Colón", 3000,
+                   Zona("Isla Colón", 800,
                         "La isla Colón es la ínsula principal del archipiélago de Bocas del Toro, situado al noroeste "
                         "de Panamá en el mar Caribe. Con una superficie de 61 km², es la isla más grande de la "
                         "provincia de Bocas del Toro y la cuarta más grande del país.",
@@ -30,7 +30,7 @@ regiones = [
                         "\u29BF Cena\n"
                         "\u29BF Viaje en barco"
                         ),
-                   Zona("Parque Nacional Isla Bastimentos", 4000,
+                   Zona("Parque Nacional Isla Bastimentos", 750,
                         "El Parque nacional marino Isla Bastimentos se encuentra ubicado en el Archipiélago "
                         "de Bocas del Toro al norte de la provincia del mismo nombre, cerca de la ciudad de Bocas del "
                         "Toro y la aldea indígena Ngäbe-Buglé Salt Creek. Fue creado en 1988 y cuenta "

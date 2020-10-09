@@ -21,19 +21,24 @@ class Zona:
 
 
 class Cliente:
-    def __init__(self, nombre, edad, nacionalidad, jubilado, sexo, cedula, telefono):
+    def __init__(self, nombre, cedula, edad, sexo,  nacionalidad, telefono, jubilado):
         self.nombre = nombre
-        self.edad = edad
-        self.jubilado = jubilado
-        self.nacionalidad = nacionalidad
-        self.sexo = sexo
         self.cedula = cedula
+        self.edad = edad
+        self.sexo = sexo
+        self.nacionalidad = nacionalidad
         self.telefono = telefono
+        self.jubilado = jubilado
+
+    def get_attr_list(self):
+        return [self.nombre, self.cedula, self.edad, self.sexo, self.nacionalidad, self.telefono]
 
 
 class Reserva:
-    def __init__(self, nombre_region, zona, cnt, abono):
+    def __init__(self, nombre_region, tipo_region, zona, personas, subtotal, descuento):
         self.nombre_region = nombre_region
+        self.tipo_region = tipo_region
         self.zona = zona
-        self.cnt = cnt
-        self.abono = abono
+        self.personas = personas
+        self.subtotal = subtotal
+        self.descuento = descuento

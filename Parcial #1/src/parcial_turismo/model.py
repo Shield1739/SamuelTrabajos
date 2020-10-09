@@ -7,7 +7,7 @@ class Model:
         self.regiones = pt.get_regiones_list()
         self.region_act = None  # Region(0, "", "", "")
         self.zona_act = None  # Zona(0, "", "", "")
-        self.cliente_act = None  # Cliente("Javier", "18", "Panama", True, 'F', "8-888-8888", "999-0101")
+        self.cliente_act = None  # Cliente("Javier", "8-888-88", "60", "F", 'Panama', "999-9911", True)
         self.reserva_list = []
 
     def get_tipo_obj(self, obj):
@@ -18,6 +18,15 @@ class Model:
         else:
             # ERROR
             return "none"
+
+    def set_cliente_act(self, e, j):
+        self.cliente_act = Cliente(*e, j)
+
+    def add_reserva(self, cant, subtotal, descuento):
+        self.reserva_list.append(Reserva(self.region_act.nombre, self.region_act.get_tipo_nombre(), self.zona_act, cant,
+                                         subtotal, descuento))
+        self.region_act = None
+        self.zona_act = None
 
     def set_regionact_by_nombre(self, nombre):
         if nombre == "":
