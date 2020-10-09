@@ -7,7 +7,7 @@ class Model:
         self.regiones = pt.get_regiones_list()
         self.region_act = None  # Region(0, "", "", "")
         self.zona_act = None  # Zona(0, "", "", "")
-        self.cliente_act = None  # Cliente("Javier", "8-888-88", "60", "F", 'Panama', "999-9911", True)
+        self.cliente_act = Cliente("Javier", "8-888-88", "60", "F", 'Panama', "999-9911", True)
         self.reserva_list = []
 
     def get_tipo_obj(self, obj):

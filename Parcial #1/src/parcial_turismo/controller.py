@@ -14,7 +14,7 @@ class Controller:
         self.work_subtotal = 0.0
         self.work_descuento = 0.0
         self.work_es_jubilado = False
-        # self.work_abono = 0
+        self.work_abono = 0
 
         self.view = View(self.root, self)
 
@@ -65,6 +65,7 @@ class Controller:
         self.work_cant = 1
         self.work_subtotal = 0.0
         self.work_descuento = 0.0
+        self.work_abono = 0
         self.work_es_jubilado = False
 
     def remove_reserva(self, index):

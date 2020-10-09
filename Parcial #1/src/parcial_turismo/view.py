@@ -1,13 +1,11 @@
 import os
 from tkinter import *
-from tkinter import messagebox, ttk
-from tkinter import scrolledtext as st
+from tkinter import messagebox, ttk, scrolledtext as st
 from tkinter.font import Font
 
 from PIL import ImageTk, Image
 
 import parcial_turismo as pt
-from parcial_turismo import *
 
 
 class View:
@@ -63,11 +61,7 @@ class View:
 
     # Main window
     def show_main_window(self):
-        self.frame.destroy()
-        self.root.geometry("900x600")
-
-        self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID)
-        self.frame.pack(pady=20)
+        self.init_self_frame()
 
         Label(self.frame, text="ELIGA SU DESTINO", font=self.font_t, height=2).grid(row=0, column=0, columnspan=2)
 
@@ -85,7 +79,7 @@ class View:
         mapa.tag_bind("p", "<Button-1>", self.on_canvas_click)
         mapa.tag_bind("c", "<Button-1>", self.on_canvas_click)
 
-        Label(self.frame, text="MOSTAR: ", font=self.font_st, height=5).grid(row=3, column=0, sticky=W)
+        Label(self.frame, text="MOSTAR: ", font=self.font_st, height=3).grid(row=3, column=0, sticky=W)
 
         self.display_var.set(0)
         Radiobutton(self.frame, text="SOLO PROVINCIAS", value=2, variable=self.display_var,
@@ -96,7 +90,7 @@ class View:
                     command=lambda: self.change_display_mode(mapa)).grid(row=3, column=0, sticky=W, padx=325)
 
         frame_b = LabelFrame(self.frame, borderwidth=0, highlightthickness=0)
-        frame_b.place(x=600, y=490)
+        frame_b.place(x=630, y=470)
         # Botones
         Button(frame_b, text="CANCELAR RESERVAS", bg=c_yellow,
                command=self.cancelar_reservas, height=2).grid(row=0, column=0)
@@ -164,13 +158,16 @@ class View:
             self.controller.model.cliente_act = None
 
     # sub windows
-    def show_sub_window(self):
-        # Init
+    def init_self_frame(self):
         self.frame.destroy()
         self.root.geometry("900x600")
 
         self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID, pady=10, padx=10)
         self.frame.pack(side=LEFT, fill=BOTH, expand=TRUE, padx=25, pady=25)
+
+    def show_sub_window(self):
+        # Init
+        self.init_self_frame()
 
         model = self.controller.model
 
@@ -197,7 +194,7 @@ class View:
 
         # # Frames
         # Imagen
-        frame_foto = self.create_frame(self.frame, "", 475, 475)
+        frame_foto = create_frame(self.frame, "", 475, 475)
         frame_foto.place(y=50)
 
         img = ImageTk.PhotoImage(Image.open(img_path))
@@ -206,10 +203,10 @@ class View:
         canvas.pack(expand=YES, fill=BOTH)
 
         canvas.image = img
-        canvas.create_image(0, 0, image=img, anchor=NW)
+        canvas.create_image(237, 237, image=img, anchor=CENTER)
 
         # Descripcion
-        frame_desc = self.create_frame(self.frame, "Descripcion", 350, 230)
+        frame_desc = create_frame(self.frame, "Descripcion", 350, 230)
         frame_desc.pack_propagate(False)
         frame_desc.place(x=475, y=50)
 
@@ -219,7 +216,7 @@ class View:
         descripcion_box.pack(expand=True, fill=BOTH)
 
         # Zonas/Extras
-        frame3 = self.create_frame(self.frame, frame3_titulo, 350, 230)
+        frame3 = create_frame(self.frame, frame3_titulo, 350, 230)
         frame3.place(x=475, y=290)
 
         if model.zona_act is None:
@@ -235,31 +232,18 @@ class View:
             extras_box.config(state=DISABLED)
             extras_box.pack(expand=True, fill=BOTH)
 
-            precio_frame = self.create_frame(self.frame, "", 350, 45)
+            precio_frame = create_frame(self.frame, "", 350, 45)
             precio_frame.place(x=475, y=480)
 
             Label(precio_frame, text="Precio: $" + str(act.precio), font=self.font_st).place(y=10)
             Button(precio_frame, text="RESERVAR", bg=c_yellow, command=self.show_reservar_window).place(x=275, y=10)
-
-    def create_frame(self, parent, text, width, height):
-        # , relief=SOLID,  borderwidth=1
-        if text == "":
-            frame = Frame(parent, width=width, height=height)
-        else:
-            frame = LabelFrame(parent, text=text, width=width, height=height, relief=SOLID)
-        frame.pack_propagate(False)
-        return frame
 
     def sub_change_objact(self, obj):
         self.controller.set_objact(obj)
         self.show_sub_window()
 
     def show_reservar_window(self):
-        self.frame.destroy()
-        self.root.geometry("900x600")
-
-        self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID, pady=10, padx=10, bg=c_light_blue)
-        self.frame.pack(side=LEFT, fill=BOTH, expand=TRUE, padx=25, pady=25)
+        self.init_self_frame()
 
         model = self.controller.model
 
@@ -275,7 +259,7 @@ class View:
 
         # # Frames
         # Destino
-        frame_destino = self.create_frame(self.frame, "Informacion Destino", 800, 100)
+        frame_destino = create_frame(self.frame, "Informacion Destino", 800, 100)
         frame_destino.grid_propagate(False)
         frame_destino.pack(pady=5)
 
@@ -290,7 +274,7 @@ class View:
         Label(frame_destino, text="$" + str(model.zona_act.precio), font=self.font_st).grid(row=2, column=1, sticky=W)
 
         # Cliente
-        frame_cliente = self.create_frame(self.frame, "Informacion Cliente", 400, 300)
+        frame_cliente = create_frame(self.frame, "Informacion Cliente", 400, 300)
         frame_cliente.grid_propagate(False)
         frame_cliente.place(y=150)
 
@@ -331,7 +315,7 @@ class View:
                     i.config(state=DISABLED)
 
         # Pago
-        frame_pago = self.create_frame(self.frame, "Informacion Pago", 400, 300)
+        frame_pago = create_frame(self.frame, "Informacion Pago", 400, 300)
         frame_pago.grid_propagate(False)
         frame_pago.place(x=420, y=150)
 
@@ -433,11 +417,7 @@ class View:
             show_warningbox("No tiene ninguna reserva activa")
             return
 
-        self.frame.destroy()
-        self.root.geometry("900x600")
-
-        self.frame = LabelFrame(self.root, borderwidth=5, relief=SOLID, pady=10, padx=10, bg=c_light_blue)
-        self.frame.pack(side=LEFT, fill=BOTH, expand=TRUE, padx=25, pady=25)
+        self.init_self_frame()
 
         Button(self.frame, text="\u21E6 ATRAS", bg=c_yellow,
                command=self.show_main_window).place(x=0, y=0)
@@ -446,7 +426,7 @@ class View:
 
         # # Frames
         # Reservas
-        frame_reservas = self.create_frame(self.frame, "", 475, 475)
+        frame_reservas = create_frame(self.frame, "", 475, 475)
         frame_reservas.config(relief=SOLID, bd=2)
         frame_reservas.place(y=50)
         frame_scroll = ScrollableFrame(frame_reservas)
@@ -460,7 +440,7 @@ class View:
 
         for i in range(len(reservas_list)):
             j = reservas_list[i]
-            frame_sub_reserva.append(self.create_frame(frame_scroll.scrollable_frame, "", 435, 125))
+            frame_sub_reserva.append(create_frame(frame_scroll.scrollable_frame, "", 435, 125))
             frame_sub_reserva[-1].config(relief=SOLID, bd=2)
             frame_sub_reserva[-1].grid_propagate(False)
             frame_sub_reserva[-1].pack(pady=5, padx=5)
@@ -493,7 +473,7 @@ class View:
             descuento += j.descuento
 
         # Cliente
-        frame_cliente = self.create_frame(self.frame, "Informacion Cliente", 345, 250)
+        frame_cliente = create_frame(self.frame, "Informacion Cliente", 345, 200)
         frame_cliente.grid_propagate(False)
         frame_cliente.place(x=480, y=50)
 
@@ -502,7 +482,7 @@ class View:
         c = self.controller.model.cliente_act.get_attr_list()
         for i in range(len(entries_strings)):
             j = entries_strings[i]
-            Label(frame_cliente, text=j, font=self.font_b, height=2).grid(row=i, column=0, sticky=E)
+            Label(frame_cliente, text=j, font=self.font_b, height=1).grid(row=i, column=0, sticky=E)
 
             if j == "Sexo:":
                 s = StringVar()
@@ -527,22 +507,48 @@ class View:
                 entry.config(width=5)
                 Label(frame_cliente, text="Jubilado:").grid(row=i, column=1, sticky=W, padx=40)
 
-            # Total
-            frame_total = self.create_frame(self.frame, "Informacion Pago", 345, 200)
-            frame_total.grid_propagate(False)
-            frame_total.place(x=480, y=310)
+        # Total
+        frame_total = create_frame(self.frame, "Informacion Pago", 345, 250)
+        frame_total.grid_propagate(False)
+        frame_total.place(x=480, y=260)
 
-            Label(frame_total, text="Total de\nReservas:", font=self.font_stu).grid(row=0, column=0, sticky=E)
-            Label(frame_total, text=len(reservas_list), font=self.font_b).grid(row=0, column=1, sticky=W)
+        Label(frame_total, text="Total de Reservas:", font=self.font_stu).grid(row=0, column=0, columnspan=3, sticky=E)
+        Label(frame_total, text=len(reservas_list), font=self.font_b).grid(row=0, column=3, sticky=W)
 
-            Label(frame_total, text="Sub-Total:", font=self.font_stu).grid(row=1, column=0, sticky=E)
-            Label(frame_total, text="$" + str(subtotal), font=self.font_b).grid(row=1, column=1, sticky=W)
+        Label(frame_total, text="Sub-Total:", font=self.font_stu).grid(row=1, column=0, sticky=E)
+        Label(frame_total, text="$" + str(subtotal), font=self.font_b).grid(row=1, column=1, sticky=W)
 
-            Label(frame_total, text="Descuento:", font=self.font_stu).grid(row=2, column=0, sticky=E)
-            Label(frame_total, text="$" + str(descuento), font=self.font_b).grid(row=2, column=1, sticky=W)
+        Label(frame_total, text="Descuento:", font=self.font_stu).grid(row=2, column=0, sticky=E)
+        Label(frame_total, text="$" + str(descuento), font=self.font_b).grid(row=2, column=1, sticky=W)
 
-            Label(frame_total, text="Total:", font=self.font_stu).grid(row=3, column=0, sticky=E)
-            Label(frame_total, text="$" + str(subtotal - descuento), font=self.font_b).grid(row=3, column=1, sticky=W)
+        total = subtotal - descuento
+
+        Label(frame_total, text="Total:", font=self.font_stu).grid(row=3, column=0, sticky=E)
+        Label(frame_total, text="$" + str(total), font=self.font_b).grid(row=3, column=1, sticky=W)
+
+        Label(frame_total, text="", font=self.font_stu).grid(row=4, column=0)
+
+        labels = []
+
+        Label(frame_total, text="Total Abonado:", font=self.font_stu).grid(row=5, column=0, columnspan=2, sticky=E)
+        labels.append(Label(frame_total, text="$0", font=self.font_b))
+        labels[-1].grid(row=5, column=2, sticky=W)
+
+        Label(frame_total, text="Total Adeudado:", font=self.font_stu).grid(row=6, column=0, columnspan=2, sticky=E)
+        labels.append(Label(frame_total, text="$" + str(total), font=self.font_b))
+        labels[-1].grid(row=6, column=2, sticky=W)
+
+        abono_var = StringVar()
+        abono_var.set("0")
+
+        Label(frame_total, text="Abono:", font=self.font_b).grid(row=7, column=0, sticky=W, pady=5)
+        Entry(frame_total, relief=SOLID, textvariable=abono_var, width=10).grid(row=8, column=0, sticky=W, padx=5)
+
+        Button(frame_total, text="ABONAR", bg=c_yellow,
+               command=lambda: self.check_abono(abono_var, total, labels),
+               height=2, width=15).place(x=75, y=180)
+        Button(frame_total, text="CONFIRMAR RESERVAS", bg=c_yellow,
+               command=lambda: self.confirm_reserva(), height=2, width=18).place(x=200, y=180)
 
     def remove_reserva(self, index):
         if show_yesnobox("Seguro que desea cancelar esta reserva?"):
@@ -555,6 +561,30 @@ class View:
                 self.show_pagar_window()
         else:
             return
+
+    def check_abono(self, abono, total, labels):
+        try:
+            abono_int = int(abono.get())
+        except ValueError:
+            show_warningbox("Ingrese solo numeros")
+            return
+
+        if abono_int <= 0:
+            show_warningbox("El abono tien que mayor que 0")
+            return
+
+        if abono_int > total:
+            show_warningbox("El abono no puede ser mas que el total")
+            return
+
+        labels[0].config(text="$" + str(abono_int))
+        labels[1].config(text="$" + str(total - abono_int))
+
+    def confirm_reserva(self):
+        if show_yesnobox("Seguro que desea confirmar su reserva?"):
+            messagebox.showinfo("Gracias", "Disfrute sus vacaiones!")
+            self.controller.clear_reservas()
+            self.show_main_window()
 
 
 class ScrollableFrame(ttk.Frame):
@@ -582,29 +612,27 @@ class ScrollableFrame(ttk.Frame):
 
 
 # funciones
+def create_frame(parent, text, width, height):
+    # , relief=SOLID,  borderwidth=1
+    if text == "":
+        frame = Frame(parent, width=width, height=height)
+    else:
+        frame = LabelFrame(parent, text=text, width=width, height=height, relief=SOLID)
+    frame.pack_propagate(False)
+    return frame
+
+
 def show_warningbox(msg):
     messagebox.showwarning("Warning", msg)
 
 
-# funciones
 def show_yesnobox(msg):
     return messagebox.askyesno("Mensaje", msg)
 
 
-# Globals
-Regiones = pt.get_regiones_list()
-
-region_selec = Region(0, 0, 0, 0)
-zona_selec = Zona(0, 0, 0, 0)
-
 # Colores
 c_black = '#000000'
 c_white = '#FFFFFF'
-c_p1_m = '#6200EE'
-c_p1_v = '#3700B3'
-c_p2_m = '#03DAC6'
-c_p2_v = '#018786'
-c_error = '#B00020'
 c_yellow = '#FFCD03'
 c_blue = '#0336FF'
 c_light_blue = "#03b3ff"
