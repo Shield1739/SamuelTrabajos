@@ -160,7 +160,7 @@ regiones = [
                         "\u0085 1 Noche\n"
                         "\u0085 Almuerzo\n"
                         ),
-                   Zona("Zona Chiriki #3", 800,
+                   Zona("Cenegon del Mangle", 800,
                         "Es conocido y concurrido por los aldeanos porque dicen que cura. Situado en la ciudad de "
                         "París en Parita, es un viaje con grandes intereses ecológicos que cuenta con seis tipos de "
                         "manglares. Igualmente se encuentran pantanos y humedales. Asimismo se conoce con el nombre "
@@ -170,7 +170,7 @@ regiones = [
                         "\u0085 1 Noche\n"
                         "\u0085 Almuerzo\n"
                         ),
-                   Zona("Zona Chiriki #4", 4000,
+                   Zona("Museo de Arte", 4000,
                         "El Museo de Arte Religioso Colonial se localizaba en la antigüedad, la Capilla de Santo "
                         "Domingo, consagrada a la devoción de la Virgen del Rosario. El lugar donde se encuentra el "
                         "museo estaba compuesto por una iglesia, está en ruinas, una capilla y un monasterio que "
