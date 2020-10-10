@@ -5,8 +5,6 @@ from tkinter.font import Font
 
 from PIL import ImageTk, Image
 
-import parcial_turismo as pt
-
 
 class View:
     def __init__(self, root, controller):
@@ -327,7 +325,8 @@ class View:
         Label(frame_pago, text="Total:", font=self.font_stu, height=2).grid(row=3, column=0, sticky=E)
 
         for i in range(len(self.total_var)):
-            Entry(frame_pago, textvariable=self.total_var[i], relief=SOLID, state=DISABLED).grid(row=i+1, column=1, sticky=W)
+            Entry(frame_pago, textvariable=self.total_var[i], relief=SOLID, state=DISABLED)\
+                .grid(row=i+1, column=1, sticky=W)
 
         Button(frame_pago, text="CANCELAR", bg=c_yellow,
                command=lambda: self.show_main_window() if show_yesnobox("Desea cancelar y volver al menu principal?")
@@ -633,9 +632,11 @@ def show_yesnobox(msg):
 # Colores
 c_black = '#000000'
 c_white = '#FFFFFF'
-c_yellow = '#FFCD03'
-c_blue = '#0336FF'
-c_light_blue = "#03b3ff"
+c_yellow = '#ffee58'
+# c_blue = '#0336FF'
+c_blue = "#7986cb"
+# c_light_blue = "#03b3ff"
+c_light_blue = "#82b1ff"
 c_pink = '#FF0266'
-c_red = '#FF0335'
+c_red = '#ef5350'
 c_green = '#41c300'
