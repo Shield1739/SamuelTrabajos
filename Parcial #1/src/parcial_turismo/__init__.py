@@ -23,9 +23,9 @@ regiones = [
                         "\u29BF Desayuno\n"
                         "\u29BF Masaje"),
                    Zona("Isla Colón", 800,
-                        "La isla Colón es la ínsula principal del archipiélago de Bocas del Toro, situado al noroeste "
-                        "de Panamá en el mar Caribe. Con una superficie de 61 km², es la isla más grande de la "
-                        "provincia de Bocas del Toro y la cuarta más grande del país.",
+                        "La isla Colón es la península principal del archipiélago de Bocas del Toro, situado al "
+                        "noroeste de Panamá en el mar Caribe. Con una superficie de 61 km², es la isla más grande de "
+                        "la provincia de Bocas del Toro y la cuarta más grande del país.",
                         "\u29BF 4 Noches\n"
                         "\u29BF Cena\n"
                         "\u29BF Viaje en barco"

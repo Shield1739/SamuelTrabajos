@@ -47,7 +47,7 @@ class View:
         Label(self.frame, text="Angel Iglesias - 8-958-1", font=self.font_st).grid(row=9)
         Label(self.frame, text="Sahori Raby - 8-964-644", font=self.font_st).grid(row=10)
         Label(self.frame, text="Luis Villalaz - 8-925-2287", font=self.font_st).grid(row=11)
-        Label(self.frame, text="Wymming Zheng - 8-966-1043", font=self.font_st).grid(row=12)
+        Label(self.frame, text="Wyming Zeng - 8-966-1043", font=self.font_st).grid(row=12)
 
         Label(self.frame, text="Profesor:", font=self.font_st, height=2).grid(row=13)
         Label(self.frame, text="Ing. Samuel Jiménez", font=self.font_st).grid(row=14)
@@ -61,7 +61,7 @@ class View:
     def show_main_window(self):
         self.init_self_frame()
 
-        Label(self.frame, text="ELIGA SU DESTINO", font=self.font_t, height=2).grid(row=0, column=0, columnspan=2)
+        Label(self.frame, text="ELIJA SU DESTINO", font=self.font_t, height=2).grid(row=0, column=0, columnspan=2)
 
         mapa = Canvas(self.frame, height=400, width=800)
 
@@ -187,7 +187,7 @@ class View:
                 model.zona_act.nombre) + '.png'
 
         # Titulo
-        Label(self.frame, text="ELIGA SU DESTINO", font=self.font_t).pack()
+        Label(self.frame, text="ELIJA SU DESTINO", font=self.font_t).pack()
         Label(self.frame, text=act.nombre, font=self.font_st).pack()
 
         # # Frames
@@ -349,11 +349,6 @@ class View:
             edad.set("18")
             return
 
-        if e < 18:
-            show_warningbox("La edad tiene que ser mayor que 18")
-            edad.set("18")
-            return
-
         if e >= 57 and sexo.get() == "F":
             label.config(text="Si", fg=c_green)
             self.controller.work_es_jubilado = True
@@ -397,6 +392,12 @@ class View:
             if i.get() == "":
                 show_warningbox("Los campos de informacion del cliente no pueden estar vacios")
                 return
+
+        if int(entries_vars[2].get()) < 18:
+            show_warningbox("La edad tiene que ser mayor que 18")
+            entries_vars[2].set("18")
+            return
+
         if self.controller.model.cliente_act is None:
             e = []
             for i in entries_vars:
