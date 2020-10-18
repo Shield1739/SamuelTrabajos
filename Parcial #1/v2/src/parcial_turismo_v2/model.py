@@ -52,12 +52,12 @@ class Model:
 
     def get_active_vars(self, nombre):
         if not self.has_active_vars(nombre):
-            raise KeyError("Obj Activo no existe")
+            raise KeyError("Var Activa no existe")
         return self.active_vars[nombre]
 
     def set_active_vars(self, nombre, var):
         if not self.has_active_vars(nombre):
-            raise KeyError("Obj Activo no existe")
+            raise KeyError("Var Activa no existe")
         self.active_vars[nombre] = var
         return var
 

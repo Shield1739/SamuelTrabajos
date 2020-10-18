@@ -15,7 +15,7 @@ class BaseView:
     FONT_LARGE = "ubuntu 14"
     FONT_HUGE = "ubuntu 16"
 
-    orange = '#F57C00'
+    orange = '#FB8C00'
     purple = '#9965f4'
     pink = '#FF0266'
     green = "#41c300"
@@ -133,10 +133,7 @@ class PresentacionWindowView(BaseView):
         for i in widgets:
             i.configure(style='M.TLabel')
 
-        ttk.Button(self.frame, text="EMPEZAR", command=self.create_mapa_window).pack(pady=10)
-
-    def create_mapa_window(self):
-        self.controller.create_mapa_view()
+        ttk.Button(self.frame, text="EMPEZAR", command=lambda: create_mapa_window(self.controller)).pack(pady=10)
 
 
 class MapaWindowView(BaseView):
@@ -168,7 +165,7 @@ class MapaWindowView(BaseView):
 
         mapa.tag_bind("t", "<Button-1>", self.on_canvas_click)
 
-        ttk.Label(self.frame, text="MOSTAR:", font=self.FONT_MEDIUM).pack(side=tk.LEFT, pady=25)
+        ttk.Label(self.frame, text="MOSTRAR:", font=self.FONT_MEDIUM).pack(side=tk.LEFT, pady=25)
 
         display_var = tk.IntVar()
         display_var.set(0)
@@ -181,7 +178,7 @@ class MapaWindowView(BaseView):
         ttk.Radiobutton(self.frame, text="AMBAS", value=0, variable=display_var,
                         command=lambda: self.change_display_mode()).pack(side=tk.LEFT)
 
-        ttk.Button(self.frame, text="PAGAR", command=self.create_pagar_window).pack(side=tk.RIGHT)
+        ttk.Button(self.frame, text="PAGAR", command=lambda: create_pagar_window(self.controller)).pack(side=tk.RIGHT)
         ttk.Button(self.frame, text="CANCELAR RESERVAS", command=self.cancelar_reservas).pack(side=tk.RIGHT)
 
     def create_provincias_text(self):
@@ -233,21 +230,12 @@ class MapaWindowView(BaseView):
         r = r.replace("\n", " ")
 
         self.controller.set_region_act_by_nombre(r)
-        self.create_select_window()
+        create_select_window(self.controller)
 
     def cancelar_reservas(self):
         if len(self.controller.get_reservalist()) > 0:
             if messagebox.askyesno("Mensaje", "Esta seguro que quiere cancelar sus reservas??"):
                 self.controller.clear_reservalist()
-        else:
-            messagebox.showwarning("Warning", "No tiene reservas activas")
-
-    def create_select_window(self):
-        self.controller.create_select_view()
-
-    def create_pagar_window(self):
-        if len(self.controller.get_reservalist()) > 0:
-            self.controller.create_pagar_view()
         else:
             messagebox.showwarning("Warning", "No tiene reservas activas")
 
@@ -341,27 +329,18 @@ class SelectWindowView(BaseView):
             extras_box.pack()
 
             ttk.Label(frame3, text="Precio: $" + str(zona.precio), font=self.FONT_MEDIUM).pack(side=tk.LEFT)
-            ttk.Button(frame3, text="RESERVAR", command=self.create_reservar_window).pack(side=tk.RIGHT)
+            ttk.Button(frame3, text="RESERVAR", command=lambda: create_reservar_window(self.controller)).pack(side=tk.RIGHT)
 
     def handle_back_button(self):
         if self.controller.get_obj_act(Tipos.ZONA) is None:
-            self.create_mapa_window()
+            create_mapa_window(self.controller)
         else:
             self.controller.set_obj_act(Tipos.ZONA, None)
-            self.create_select_window()
+            create_select_window(self.controller)
 
     def select_zona(self, zona):
         self.controller.set_obj_act(Tipos.ZONA, zona)
-        self.create_select_window()
-
-    def create_select_window(self):
-        self.controller.create_select_view()
-
-    def create_mapa_window(self):
-        self.controller.create_mapa_view()
-
-    def create_reservar_window(self):
-        self.controller.create_reservar_view()
+        create_select_window(self.controller)
 
 
 class ReservarWindowView(BaseView):
@@ -478,11 +457,11 @@ class ReservarWindowView(BaseView):
         self.refresh_totals()
 
     def handle_back_button(self):
-        self.create_select_window()
+        create_select_window(self.controller)
 
     def handle_cancelar_button(self):
         if messagebox.askyesno("", "Desea cancelar y volver al menu principal?"):
-            self.create_mapa_window()
+            create_mapa_window(self.controller)
 
     def check_cant(self, *args):
         cant = self.get_variable("cant_var")
@@ -549,9 +528,9 @@ class ReservarWindowView(BaseView):
 
         r = messagebox.askyesno("Mensaje", "Desea agregar otra reserva?")
         if r:
-            self.create_mapa_window()
+            create_mapa_window(self.controller)
         else:
-            self.create_pagar_window()
+            create_pagar_window(self.controller)
 
     def refresh_totals(self):
         self.controller.update_act_vars()
@@ -561,15 +540,6 @@ class ReservarWindowView(BaseView):
         self.get_variable("subtotal_var").set("$" + str(subtotal))
         self.get_variable("descuento_var").set("$" + str(descuento))
         self.get_variable("total_var").set("$" + str(subtotal - descuento))
-
-    def create_mapa_window(self):
-        self.controller.create_mapa_view()
-
-    def create_select_window(self):
-        self.controller.create_select_view()
-
-    def create_pagar_window(self):
-        self.controller.create_pagar_view()
 
 
 class PagarWindowView(BaseView):
@@ -711,7 +681,7 @@ class PagarWindowView(BaseView):
         ttk.Button(frame_total, text="CONFIRMAR RESERVAS", command=self.handle_confirm_button).place(x=50, y=180)
 
     def handle_back_button(self):
-        self.create_mapa_window()
+        create_mapa_window(self.controller)
 
     def handle_cancelar_button(self, index):
         if messagebox.askyesno("Mensaje", "Seguro que desea cancelar esta reserva?"):
@@ -719,9 +689,9 @@ class PagarWindowView(BaseView):
             if len(self.controller.get_reservalist()) == 0:
                 messagebox.showwarning("Warning", "No tiene ninguna reserva activa")
                 self.controller.clear_reservalist()
-                self.create_mapa_window()
+                create_mapa_window(self.controller)
             else:
-                self.create_pagar_window()
+                create_pagar_window(self.controller)
         else:
             return
 
@@ -747,13 +717,7 @@ class PagarWindowView(BaseView):
         if messagebox.askyesno("Mensaje", "Seguro que desea confirmar su reserva?"):
             messagebox.showinfo("Gracias", "Disfrute sus vacaiones!")
             self.controller.clear_reservalist()
-            self.create_mapa_window()
-
-    def create_mapa_window(self):
-        self.controller.create_mapa_view()
-
-    def create_pagar_window(self):
-        self.controller.create_pagar_view()
+            create_mapa_window(self.controller)
 
 
 class ScrollableFrame(ttk.Frame):
@@ -776,3 +740,22 @@ class ScrollableFrame(ttk.Frame):
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+
+
+def create_mapa_window(c):
+    c.create_mapa_view()
+
+
+def create_select_window(c):
+    c.create_select_view()
+
+
+def create_reservar_window(c):
+    c.create_reservar_view()
+
+
+def create_pagar_window(c):
+    if len(c.get_reservalist()) > 0:
+        c.create_pagar_view()
+    else:
+        messagebox.showwarning("Warning", "No tiene reservas activas")
