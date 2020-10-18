@@ -6,7 +6,7 @@ from tkinter.font import Font
 
 from PIL import ImageTk, Image
 
-from parcial_turismo import Tipos
+from parcial_turismo_v2 import Tipos
 
 
 class BaseView:

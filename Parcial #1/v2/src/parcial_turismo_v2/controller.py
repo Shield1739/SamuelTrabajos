@@ -2,7 +2,7 @@ from ttkthemes import ThemedTk
 
 from parcial_turismo.data import Cliente
 from parcial_turismo.model import Model
-from parcial_turismo.view import *
+from parcial_turismo_v2.view import *
 
 
 class BaseController:

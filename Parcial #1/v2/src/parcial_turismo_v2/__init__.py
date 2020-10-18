@@ -1,4 +1,4 @@
-from parcial_turismo.data import Region, Zona, Reserva
+from parcial_turismo_v2.data import Region, Zona, Reserva
 from enum import Enum
 
 

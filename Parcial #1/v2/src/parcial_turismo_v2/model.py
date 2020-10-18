@@ -1,5 +1,5 @@
-from parcial_turismo.data import Reserva
-from parcial_turismo import Tipos, get_regiones_list
+from parcial_turismo_v2.data import Reserva
+from parcial_turismo_v2 import Tipos, get_regiones_list
 
 
 class Model:
