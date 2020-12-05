@@ -6,12 +6,23 @@ from parcial_turismo_v2.view import *
 
 
 class BaseController:
-    def __init__(self, root):
+    def __init__(self, parent):
         super(BaseController, self).__init__()
-        self._root = root
+        self._parent = parent
         self._model = Model()
 
         self._active_view = None
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @property
+    def app(self):
+        result = self.parent
+        if not isinstance(result, Application):
+            result = result.application
+        return result
 
     @property
     def root(self):
