@@ -134,8 +134,8 @@ class MainView(BaseView):
         button_frame.pack(anchor=tk.W)
 
         ttk.Button(button_frame, text="START", width=6, command=self.start_sorting).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="PAUSE/CONTINUE").pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="STOP", width=5).pack(side=tk.LEFT, padx=5)
+        # ttk.Button(button_frame, text="PAUSE/CONTINUE").pack(side=tk.LEFT, padx=5)
+        # ttk.Button(button_frame, text="STOP", width=5).pack(side=tk.LEFT, padx=5)
 
         # self.add_widget("button_frame", button_frame)
 
@@ -259,31 +259,21 @@ class ActionView(BaseView):
 
     def load(self):
         # info frame
-        info_frame = ttk.Frame(self.parent, width=400, height=200)
-        info_frame.pack_propagate(False)
-        info_frame.pack(side=tk.LEFT)
+        # info_frame = ttk.Frame(self.parent, width=400, height=200)
+        # info_frame.pack_propagate(False)
+        # info_frame.pack(side=tk.LEFT)
 
-        self.add_widget("info_frame", info_frame)
-
-        ttk.Label(info_frame, text="foreach (gap en el array) {").pack(anchor=tk.W)
-        ttk.Label(info_frame, text="\tfor (i = gap; i < n; i++) {").pack(anchor=tk.W)
-        ttk.Label(info_frame, text="\t\ttemp = a[i]").pack(anchor=tk.W)
-        ttk.Label(info_frame, text="\t\tfor (j = i; j >= n && a[j-gap] > temp; j -= gap) {").pack(anchor=tk.W)
-        ttk.Label(info_frame, text="\t\t\ta[j] = a[j-gap]\n"
-                                   "\t\t}").pack(anchor=tk.W)
-        ttk.Label(info_frame, text="\t\ta[j] = temp\n"
-                                   "\t}"
-                                   "\n}").pack(anchor=tk.W)
+        # self.add_widget("info_frame", info_frame)
 
         # action canvas frame
-        canvas_frame = ttk.Frame(self.parent)
-        canvas_frame.pack(expand=tk.TRUE, fill=tk.BOTH)
+        action_canvas_frame = ttk.Frame(self.parent)
+        action_canvas_frame.pack(expand=tk.TRUE, fill=tk.BOTH)
 
-        # self.add_widget("canvas_frame", canvas_frame)
+        # self.add_widget("action_canvas_frame", canvas_frame)
 
-        canvas = tk.Canvas(canvas_frame, width=400, height=200)
+        canvas = tk.Canvas(action_canvas_frame, width=400, height=200)
         canvas.configure(bg='black')
-        canvas.pack(side=tk.RIGHT)
+        canvas.pack()
 
         self.add_widget("action_canvas", canvas)
 
